@@ -50,6 +50,10 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
 
 
 def read_files_multi():
+    """read_files_multi fetchse Shakespeare works from GCS in multi threads.
+
+    TODO: This part should be multiprocess.
+    """
     client = storage.Client()
     bucket = client.get_bucket(BUCKET_NAME)
     itr = client.list_blobs(bucket, prefix=BUCKET_PREFIX)
