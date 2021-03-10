@@ -39,12 +39,16 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
         super().__init__()
 
     def GetMatchCount(self, request, context):
+        logging.info(f"query: {request.query}")
+
         texts = read_files_multi()
         count = 0
-        """TODO: intentionally implemented in inefficient way.
-        """
+
+        # TODO: intentionally implemented in inefficient way.
         for text in texts:
-            for line in text.split("\n"):
+            lines = text.split("\n")
+            logging.info(f"number of lines: {len(lines)}")
+            for line in lines:
                 line, query = line.lower(), request.query.lower()
                 matched = re.match(query, line)
                 if matched:
@@ -78,6 +82,7 @@ def read_files_multi():
         ret = executor.submit(blob.download_as_bytes)
         results.append(ret)
     executor.shutdown()
+    logging.info(f"number of files: {len(results)}")
     return [str(r.result()) for r in results]
 
 
@@ -90,7 +95,7 @@ def serve():
 
     # Start gRCP server
     port = os.environ.get("PORT", "5050")
-    addr = f"[::]:{port}"
+    addr = f"0.0.0.0:{port}"
     logging.info(f"starting server: {addr}")
     server.add_insecure_port(addr)
     server.start()
