@@ -19,7 +19,6 @@ from concurrent import futures
 
 import flask
 import grpc
-from grpc_health.v1 import health_pb2, health_pb2_grpc
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
@@ -41,18 +40,6 @@ class ClientConfigError(Exception):
 
 class UnexpectedResultError(Exception):
     pass
-
-
-class ClientService(health_pb2_grpc.HealthServicer):
-    def Check(self, request, context):
-        return health_pb2.HealthCheckResponse(
-            status=health_pb2.HealthCheckResponse.SERVING
-        )
-
-    def Watch(self, request, context):
-        return health_pb2.HealthCheckResponse(
-            status=health_pb2.HealthCheckResponse.UNIMPLEMENTED
-        )
 
 
 @app.route("/")
@@ -78,12 +65,6 @@ def run():
     # fetch server
     port = os.environ.get("PORT", "8080")
     logging.info(f"start server in Port {port}")
-
-    # start health server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    service = ClientService()
-    health_pb2_grpc.add_HealthServicer_to_server(service, server)
-    server.start()
 
     app.run(host="0.0.0.0", port=port)
 
