@@ -20,6 +20,8 @@ build:
     context: src/server
   - image: client
     context: src/client
+  - image: loadgen
+    context: src/loadgen
   tagPolicy:
     gitCommit: {}
 deploy:

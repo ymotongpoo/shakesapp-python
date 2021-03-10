@@ -51,15 +51,15 @@ spec:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:5050"]
         env:
-        - name: PORTS
-          value: "5050"
+        - name: SERVER_ADDR
+          value: "serverservice:5050"
         resources:
           requests:
-            cpu: 100m
-            memory: 64Mi
+            cpu: 300m
+            memory: 256Mi
           limits:
-            cpu: 200m
-            memory: 128Mi
+            cpu: 500m
+            memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
