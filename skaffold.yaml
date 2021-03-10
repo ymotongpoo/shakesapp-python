@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v1beta2
+apiVersion: skaffold/v2beta12
 kind: Config
 build:
   artifacts:
-  - image: server
+  - image: serverservice
     context: src/server
-  - image: client
+  - image: clientservice
     context: src/client
   - image: loadgen
     context: src/loadgen

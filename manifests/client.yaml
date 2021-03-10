@@ -45,21 +45,27 @@ spec:
         ports:
         - containerPort: 8080
         readinessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:5050"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          httpGet:
+            path: "/_healthz"
+            port: 8080
         livenessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:5050"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          httpGet:
+            path: "/_healthz"
+            port: 8080
         env:
         - name: SERVER_ADDR
           value: "serverservice:5050"
         resources:
           requests:
-            cpu: 300m
-            memory: 256Mi
+            cpu: 100m
+            memory: 64Mi
           limits:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 300m
+            memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -70,6 +76,6 @@ spec:
   selector:
     app: clientservice
   ports:
-  - name: grpc
-    port: 5050
-    targetPort: 5050
+  - name: http
+    port: 8080
+    targetPort: 8080
