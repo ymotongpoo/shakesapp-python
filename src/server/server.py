@@ -27,7 +27,7 @@ import shakesapp_pb2_grpc
 BUCKET_NAME = "dataflow-samples"
 BUCKET_PREFIX = "shakespeare/"
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 
 
 class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
@@ -89,10 +89,10 @@ def serve():
     health_pb2_grpc.add_HealthServicer_to_server(service, server)
 
     # Start gRCP server
-    port = os.getenv("PORT")
-    if port == "":
-        port = 5050
-    server.add_insecure_port(f"[::]:{port}")
+    port = os.environ.get("PORT", "5050")
+    addr = f"[::]:{port}"
+    logging.info(f"starting server: {addr}")
+    server.add_insecure_port(addr)
     server.start()
     server.wait_for_termination()
 
