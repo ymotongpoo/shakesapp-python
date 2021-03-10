@@ -19,12 +19,15 @@ from concurrent import futures
 
 import grpc
 from google.cloud import storage
+from grpc_health.v1 import health_pb2, health_pb2_grpc
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
 
 BUCKET_NAME = "dataflow-samples"
 BUCKET_PREFIX = "shakespeare/"
+
+logging.basicConfig()
 
 
 class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
@@ -48,6 +51,16 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
                     count += 1
         return shakesapp_pb2.ShakespeareResponse(match_count=count)
 
+    def Check(self, request, context):
+        return health_pb2.HealthCheckResponse(
+            status=health_pb2.HealthCheckResponse.SERVING
+        )
+
+    def Watch(self, request, context):
+        return health_pb2.HealthCheckResponse(
+            status=health_pb2.HealthCheckResponse.UNIMPLEMENTED
+        )
+
 
 def read_files_multi():
     """read_files_multi fetchse Shakespeare works from GCS in multi threads.
@@ -69,11 +82,13 @@ def read_files_multi():
 
 
 def serve():
+    # Add gRPC services to server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
-    shakesapp_pb2_grpc.add_ShakespeareServiceServicer_to_server(
-        ShakesappService, server
-    )
+    service = ShakesappService()
+    shakesapp_pb2_grpc.add_ShakespeareServiceServicer_to_server(service, server)
+    health_pb2_grpc.add_HealthServicer_to_server(service, server)
 
+    # Start gRCP server
     port = os.getenv("PORT")
     if port == "":
         port = 5050
@@ -83,5 +98,4 @@ def serve():
 
 
 if __name__ == "__main__":
-    logging.basicConfig()
     serve()
