@@ -27,8 +27,19 @@ import shakesapp_pb2_grpc
 app = flask.Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
+queries = {
+    "hello": 349,
+    "world": 728,
+    "to be, or not to be": 1,
+    "insolence": 14,
+}
+
 
 class ClientConfigError(Exception):
+    pass
+
+
+class UnexpectedResultError(Exception):
     pass
 
 
@@ -50,10 +61,16 @@ def handler():
     if server_addr == "":
         raise ClientConfigError("environment variable SERVER_ADDR is not set")
 
+    q, count = random.choice(list(queries.items()))
+
     channel = grpc.insecure_channel(server_addr)
     stub = shakesapp_pb2_grpc.ShakespeareServiceStub(channel)
-    query = random.choice(["hello", "world", "to be, or not to be", "insolence"])
-    resp = stub.GetMatchCount(shakesapp_pb2.ShakespeareRequest(query=query))
+    resp = stub.GetMatchCount(shakesapp_pb2.ShakespeareRequest(query=q))
+    if count != resp.match_count:
+        raise UnexpectedResultError(
+            f"The expected count for '{q}' was {count}, but result was {resp.match_count } obtained"
+        )
+
     return resp.match_count
 
 
