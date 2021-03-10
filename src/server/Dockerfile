@@ -15,6 +15,14 @@
 FROM python:3.8-slim-buster as base
 
 FROM base as builder
+RUN apt-get -qq update \
+    && apt-get install -y --no-install-recommends \
+        wget
+
+RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
+    chmod +x /bin/grpc_health_probe
+
 RUN pip install poetry
 COPY . /src
 WORKDIR /src
@@ -22,6 +30,7 @@ RUN poetry build
 
 FROM base as runner
 COPY --from=builder /src/dist/*.whl /
+COPY --from=builder /bin/grpc_health_probe /bin/grpc_health_probe
 RUN pip install /*.whl && rm /*.whl
 
 EXPOSE 5050
