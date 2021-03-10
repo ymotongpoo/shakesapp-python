@@ -33,6 +33,8 @@ queries = {
     "insolence": 14,
 }
 
+server_addr = ""
+
 
 class ClientConfigError(Exception):
     pass
@@ -43,11 +45,7 @@ class UnexpectedResultError(Exception):
 
 
 @app.route("/")
-def handler():
-    server_addr = os.environ.get("SERVER_ADDR", "")
-    if server_addr == "":
-        raise ClientConfigError("environment variable SERVER_ADDR is not set")
-
+def main_handler():
     q, count = random.choice(list(queries.items()))
 
     channel = grpc.insecure_channel(server_addr)
@@ -61,10 +59,21 @@ def handler():
     return resp.match_count
 
 
+@app.route("/_healthz")
+def healthz_handler():
+    return "ok"
+
+
 def run():
     # fetch server
     port = os.environ.get("PORT", "8080")
     logging.info(f"start server in Port {port}")
+
+    global server_addr
+    server_addr = os.environ.get("SERVER_ADDR", "")
+    if server_addr == "":
+        raise ClientConfigError("environment variable SERVER_ADDR is not set")
+    logging.info(f"server address: {server_addr}")
 
     app.run(host="0.0.0.0", port=port)
 
