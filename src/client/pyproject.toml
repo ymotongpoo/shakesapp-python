@@ -4,6 +4,11 @@ version = "0.1.0"
 description = "Shakesapp client"
 authors = ["Yoshi Yamaguchi <yoshifumi@google.com>"]
 license = "Apache-2.0"
+include = [
+  "client.py",
+  "shakesapp_pb2.py",
+  "shakesapp_pb2_grpc.py",
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
