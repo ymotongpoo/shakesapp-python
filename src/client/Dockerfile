@@ -24,7 +24,8 @@ RUN poetry build
 FROM base as runner
 COPY --from=builder /src/dist/*.whl /
 RUN pip install /*.whl && rm /*.whl
+COPY ./config.py /config.py
 
 EXPOSE 8080
 
-CMD [ "gunicorn", "-w", "4", "client:app" ]
+CMD [ "gunicorn", "--config", "config.py", "client:app" ]

@@ -14,10 +14,14 @@
 
 FROM python:3.8-slim-buster as base
 
-RUN apt-get -qq update \
-    && apt-get install -y --no-install-recommends \
-        curl
+FROM base as builder
 RUN pip install poetry
-COPY locustfile.py loadgen.sh /
+COPY . /src
+WORKDIR /src
+RUN poetry build
 
-CMD [ "/loadgen.sh" ]
+FROM base
+COPY --from=builder /src/dist/*.whl /
+RUN pip install /*.whl && rm /*.whl
+
+CMD [ "python", "-m", "loadgen" ]

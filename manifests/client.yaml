@@ -40,7 +40,7 @@ spec:
     spec:
       serviceAccountName: default
       containers:
-      - name: server
+      - name: client
         image: clientservice
         ports:
         - containerPort: 8080

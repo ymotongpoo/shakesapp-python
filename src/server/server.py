@@ -44,15 +44,16 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
         texts = read_files_multi()
         count = 0
 
+        query = request.query.lower()
         # TODO: intentionally implemented in inefficient way.
         for text in texts:
             lines = text.split("\n")
-            logging.info(f"number of lines: {len(lines)}")
             for line in lines:
-                line, query = line.lower(), request.query.lower()
-                matched = re.match(query, line)
-                if matched:
+                line = line.lower()
+                matched = re.search(query, line)
+                if matched is not None:
                     count += 1
+        logging.info(f"query '{query}' matched count: {count}")
         return shakesapp_pb2.ShakespeareResponse(match_count=count)
 
     def Check(self, request, context):
@@ -83,7 +84,7 @@ def read_files_multi():
         results.append(ret)
     executor.shutdown()
     logging.info(f"number of files: {len(results)}")
-    return [str(r.result()) for r in results]
+    return [r.result().decode("utf-8") for r in results]
 
 
 def serve():
