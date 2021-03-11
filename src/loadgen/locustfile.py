@@ -25,9 +25,9 @@ class LoadGenerator(TaskSet):
     def on_start(self):
         request(self)
 
-    tasks = {request: 4}
+    tasks = {request: 1}
 
 
 class WebsiteUser(HttpUser):
     tasks = [LoadGenerator]
-    wait_time = between(2, 10)
+    wait_time = between(2, 5)

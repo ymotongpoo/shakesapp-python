@@ -27,7 +27,7 @@ set -x
 # if one request to the frontend fails, then exit
 STATUSCODE=$(curl --silent --output /dev/stderr --write-out "%{http_code}" http://${CLIENT_ADDR})
 if test $STATUSCODE -ne 200; then
-    echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+    echo "Error: Could not reach client - Status code: ${STATUSCODE}"
     exit 1
 fi
 
