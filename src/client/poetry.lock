@@ -107,6 +107,20 @@ grpcio = ">=1.36.1"
 protobuf = ">=3.5.0.post1,<4.0dev"
 
 [[package]]
+name = "gunicorn"
+version = "20.0.4"
+description = "WSGI HTTP Server for UNIX"
+category = "main"
+optional = false
+python-versions = ">=3.4"
+
+[package.extras]
+eventlet = ["eventlet (>=0.9.7)"]
+gevent = ["gevent (>=0.13)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
 name = "isort"
 version = "5.7.0"
 description = "A Python utility / library to sort Python imports."
@@ -255,7 +269,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e1ac8b308a5b77259a62330899b95fe26dc69eeeea0a8d76e0af0655962edc93"
+content-hash = "c3fe6d452d038c6f2cb5f917e8d151917ef2926ee1dd11602408272c20c0735e"
 
 [metadata.files]
 appdirs = [
@@ -375,6 +389,10 @@ grpcio-tools = [
     {file = "grpcio_tools-1.36.1-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:377cd9b8d2098d2ced48d3dee466fd73fb19128aa0edc6f1799077cf4dbda606"},
     {file = "grpcio_tools-1.36.1-cp39-cp39-win32.whl", hash = "sha256:120bad5a3f3288ae8acd07d839a13d7873304ae35a1d717033295e90ed9bd8ac"},
     {file = "grpcio_tools-1.36.1-cp39-cp39-win_amd64.whl", hash = "sha256:5cec989d219164312bdfa9389aedaea5887fb8133bb1a247fcde5901775b5427"},
+]
+gunicorn = [
+    {file = "gunicorn-20.0.4-py2.py3-none-any.whl", hash = "sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c"},
+    {file = "gunicorn-20.0.4.tar.gz", hash = "sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626"},
 ]
 isort = [
     {file = "isort-5.7.0-py3-none-any.whl", hash = "sha256:fff4f0c04e1825522ce6949973e83110a6e907750cd92d128b0d14aaaadbffdc"},

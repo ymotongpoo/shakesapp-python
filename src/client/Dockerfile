@@ -26,6 +26,5 @@ COPY --from=builder /src/dist/*.whl /
 RUN pip install /*.whl && rm /*.whl
 
 EXPOSE 8080
-EXPOSE 5050
 
-CMD [ "python", "-m", "client" ]
+CMD [ "gunicorn", "-w", "4", "client:app" ]

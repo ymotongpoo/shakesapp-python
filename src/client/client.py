@@ -15,7 +15,6 @@
 import logging
 import os
 import random
-from concurrent import futures
 
 import flask
 import grpc
