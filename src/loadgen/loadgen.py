@@ -45,6 +45,7 @@ def call_client(url):
 def main():
     target = os.environ.get("CLIENT_ADDR", "0.0.0.0:8080")
 
+    # connectivity check to client service
     healthz = f"http://{target}/_healthz"
     logging.info(f"check connectivity: {healthz}")
     wait_interval = 1.0
@@ -56,6 +57,7 @@ def main():
         time.sleep(wait_interval)
         wait_interval *= 3
 
+    # start request loop to client service
     logging.info("start client request loop")
     addr = f"http://{target}"
     while True:
