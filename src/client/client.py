@@ -53,13 +53,15 @@ def main_handler():
 
     channel = grpc.insecure_channel(SERVER_ADDR)
     stub = shakesapp_pb2_grpc.ShakespeareServiceStub(channel)
+    logging.info(f"request to server with query: {q}")
     resp = stub.GetMatchCount(shakesapp_pb2.ShakespeareRequest(query=q))
     if count != resp.match_count:
         raise UnexpectedResultError(
             f"The expected count for '{q}' was {count}, but result was {resp.match_count } obtained"
         )
-
-    return str(resp.match_count)
+    result = str(resp.match_count)
+    logging.info(f"matched count for '{q}' is {result}")
+    return result
 
 
 @app.route("/_healthz")
