@@ -12,34 +12,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import os
 import time
 import urllib.parse
 import urllib.request
 
-logging.basicConfig(level=logging.INFO)
+import structlog
+
+
+# Structured log configuration
+def field_name_modifier(_, __, event_dict):
+    """Replace log level field name 'level' with 'serverity' to meet
+    Cloud Logging's data model.
+    Make sure to call this processor after structlog.stdlib.add_log_level.
+    https://cloud.google.com/logging/docs/reference/v2/rpc/google.logging.v2?hl=en#google.logging.v2.LogEntry
+    """
+    event_dict["severity"] = event_dict["level"]
+    del event_dict["level"]
+    return event_dict
+
+
+def get_json_logger():
+    structlog.configure(
+        processors=[
+            structlog.stdlib.add_log_level,
+            field_name_modifier,
+            structlog.processors.TimeStamper("iso"),
+            structlog.processors.JSONRenderer(),
+        ]
+    )
+    return structlog.get_logger()
+
+
+logger = get_json_logger()
 
 
 def check_client_connection(healthz_url):
     with urllib.request.urlopen(healthz_url) as resp:
         ret = resp.read().decode("utf-8")
-        logging.info(f"/_healthz response: {ret}")
+        logger.info(f"/_healthz response: {ret}")
         if str(ret) == "ok":
-            logging.info(f"confirmed connection ot clientservice")
+            logger.info("confirmed connection ot clientservice")
             return True
     return False
 
 
 def call_client(url):
-    logging.info("call_client start")
+    logger.info("call_client start")
     try:
         with urllib.request.urlopen(url) as resp:
-            ret = resp.read()
-            logging.info(f"count: {str(ret)}")
-        logging.info("call_client end")
+            ret = resp.read().decode("utf-8")
+            logger.info(f"count: {ret}")
+        logger.info("call_client end")
     except urllib.error.HTTPError as e:
-        logging.warn(f"HTTP request error: {e}")
+        logger.warn(f"HTTP request error: {e}")
 
 
 def main():
@@ -47,18 +73,18 @@ def main():
 
     # connectivity check to client service
     healthz = f"http://{target}/_healthz"
-    logging.info(f"check connectivity: {healthz}")
+    logger.info(f"check connectivity: {healthz}")
     wait_interval = 1.0
     while not check_client_connection(healthz):
         if wait_interval > 30:
-            logging.error("exponential backoff exceeded the threshold")
+            logger.error("exponential backoff exceeded the threshold")
             return
-        logging.warning(f"not connected. wait for {wait_interval}sec and retry.")
+        logger.warning(f"not connected. wait for {wait_interval}sec and retry.")
         time.sleep(wait_interval)
         wait_interval *= 3
 
     # start request loop to client service
-    logging.info("start client request loop")
+    logger.info("start client request loop")
     addr = f"http://{target}"
     while True:
         call_client(addr)
