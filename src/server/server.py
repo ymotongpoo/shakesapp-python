@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import os
 import re
 from concurrent import futures
 
 import grpc
+import structlog
 from google.cloud import storage
 from grpc_health.v1 import health_pb2, health_pb2_grpc
 
@@ -27,7 +27,32 @@ import shakesapp_pb2_grpc
 BUCKET_NAME = "dataflow-samples"
 BUCKET_PREFIX = "shakespeare/"
 
-logging.basicConfig(level=logging.INFO)
+
+# Structured log configuration
+def field_name_modifier(_, __, event_dict):
+    """Replace log level field name 'level' with 'serverity' to meet
+    Cloud Logging's data model.
+    Make sure to call this processor after structlog.stdlib.add_log_level.
+    https://cloud.google.com/logging/docs/reference/v2/rpc/google.logging.v2?hl=en#google.logging.v2.LogEntry
+    """
+    event_dict["severity"] = event_dict["level"]
+    del event_dict["level"]
+    return event_dict
+
+
+def get_json_logger():
+    structlog.configure(
+        processors=[
+            structlog.stdlib.add_log_level,
+            field_name_modifier,
+            structlog.processors.TimeStamper("iso"),
+            structlog.processors.JSONRenderer(),
+        ]
+    )
+    return structlog.get_logger()
+
+
+logger = get_json_logger()
 
 
 class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
@@ -39,7 +64,7 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
         super().__init__()
 
     def GetMatchCount(self, request, context):
-        logging.info(f"query: {request.query}")
+        logger.info(f"query: {request.query}")
 
         texts = read_files_multi()
         count = 0
@@ -53,7 +78,7 @@ class ShakesappService(shakesapp_pb2_grpc.ShakespeareServiceServicer):
                 matched = re.search(query, line)
                 if matched is not None:
                     count += 1
-        logging.info(f"query '{query}' matched count: {count}")
+        logger.info(f"query '{query}' matched count: {count}")
         return shakesapp_pb2.ShakespeareResponse(match_count=count)
 
     def Check(self, request, context):
@@ -83,7 +108,7 @@ def read_files_multi():
         ret = executor.submit(blob.download_as_bytes)
         results.append(ret)
     executor.shutdown()
-    logging.info(f"number of files: {len(results)}")
+    logger.info(f"number of files: {len(results)}")
     return [r.result().decode("utf-8") for r in results]
 
 
@@ -97,7 +122,7 @@ def serve():
     # Start gRCP server
     port = os.environ.get("PORT", "5050")
     addr = f"0.0.0.0:{port}"
-    logging.info(f"starting server: {addr}")
+    logger.info(f"starting server: {addr}")
     server.add_insecure_port(addr)
     server.start()
     server.wait_for_termination()
