@@ -87,7 +87,9 @@ def main():
     logger.info("start client request loop")
     addr = f"http://{target}"
     while True:
+        logger.info("start request to client")
         call_client(addr)
+        logger.info("end request to client")
         time.sleep(2.0)
 
 
