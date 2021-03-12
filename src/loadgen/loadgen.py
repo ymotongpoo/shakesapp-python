@@ -18,6 +18,11 @@ import urllib.parse
 import urllib.request
 
 import structlog
+from opentelemetry import propagators, trace
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 
 
 # Structured log configuration
@@ -71,6 +76,15 @@ def call_client(url):
 def main():
     target = os.environ.get("CLIENT_ADDR", "0.0.0.0:8080")
 
+    # set up OpenTelemetry exporter for Cloud Trace.
+    # NOTE: SimpleExportSpanProcessor is for debugging use in general.
+    # we use it here for a demonstration purpose.
+    trace.set_tracer_provider(TracerProvider())
+    exporter = CloudTraceSpanExporter()
+    trace.get_tracer_provider().add_span_processor(SimpleExportSpanProcessor(exporter))
+    tracer = trace.get_tracer(__name__)
+    propagators.set_global_textmap(CloudTraceFormatPropagator())
+
     # connectivity check to client service
     healthz = f"http://{target}/_healthz"
     logger.info(f"check connectivity: {healthz}")
@@ -87,9 +101,12 @@ def main():
     logger.info("start client request loop")
     addr = f"http://{target}"
     while True:
-        logger.info("start request to client")
-        call_client(addr)
-        logger.info("end request to client")
+        with tracer.start_as_current_span("loadgen") as root_span:
+            root_span.add_event(name="request_start")
+            logger.info("start request to client")
+            call_client(addr)
+            root_span.add_event(name="request_end")
+            logger.info("end request to client")
         time.sleep(2.0)
 
 
