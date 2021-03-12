@@ -20,12 +20,21 @@ import grpc
 import structlog
 from google.cloud import storage
 from grpc_health.v1 import health_pb2, health_pb2_grpc
+from opentelemetry import propagators, trace
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
 
 BUCKET_NAME = "dataflow-samples"
 BUCKET_PREFIX = "shakespeare/"
+
+# enable auto gRPC server trace instrumentation
+GrpcInstrumentorServer().instrument()
 
 
 # Structured log configuration
@@ -113,13 +122,20 @@ def read_files_multi():
 
 
 def serve():
-    # Add gRPC services to server
+    # start trace exporter
+    trace.set_tracer_provider(TracerProvider())
+    trace.get_tracer_provider().add_span_processor(
+        SimpleExportSpanProcessor(CloudTraceSpanExporter())
+    )
+    propagators.set_global_textmap(CloudTraceFormatPropagator())
+
+    # add gRPC services to server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     service = ShakesappService()
     shakesapp_pb2_grpc.add_ShakespeareServiceServicer_to_server(service, server)
     health_pb2_grpc.add_HealthServicer_to_server(service, server)
 
-    # Start gRCP server
+    # start gRCP server
     port = os.environ.get("PORT", "5050")
     addr = f"0.0.0.0:{port}"
     logger.info(f"starting server: {addr}")

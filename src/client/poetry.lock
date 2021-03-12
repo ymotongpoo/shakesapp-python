@@ -360,6 +360,22 @@ opentelemetry-instrumentation-wsgi = "0.17b0"
 test = ["flask (>=1.0,<2.0)", "opentelemetry-test (==0.17b0)"]
 
 [[package]]
+name = "opentelemetry-instrumentation-grpc"
+version = "0.17b0"
+description = "OpenTelemetry gRPC instrumentation"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+grpcio = ">=1.27,<2.0"
+opentelemetry-api = "0.17b0"
+opentelemetry-sdk = "0.17b0"
+
+[package.extras]
+test = ["opentelemetry-test (==0.17b0)", "opentelemetry-sdk (==0.17b0)", "protobuf (>=3.13.0)"]
+
+[[package]]
 name = "opentelemetry-instrumentation-wsgi"
 version = "0.17b0"
 description = "WSGI Middleware for OpenTelemetry"
@@ -598,7 +614,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b8351a6f18c11b842977755e957455d8817dbb1f81250923e88f1d5480984f37"
+content-hash = "ce3955e7178b5c0411f8b58f685de1e47bb4b54b8f7241511ef77dbdf01f2be7"
 
 [metadata.files]
 appdirs = [
@@ -852,6 +868,10 @@ opentelemetry-instrumentation = [
 opentelemetry-instrumentation-flask = [
     {file = "opentelemetry-instrumentation-flask-0.17b0.tar.gz", hash = "sha256:8210078ded35472a919894adc20f36c4cb8339a5683c15ee8f18814d08176336"},
     {file = "opentelemetry_instrumentation_flask-0.17b0-py3-none-any.whl", hash = "sha256:c366ed0b0853b9739496b78be053a2e52daee833f84f040460951c0cd5b02fb4"},
+]
+opentelemetry-instrumentation-grpc = [
+    {file = "opentelemetry-instrumentation-grpc-0.17b0.tar.gz", hash = "sha256:df71ec539928b1d47085f3fc378cd265ff48444978e6fb99dd0153841a27d8ec"},
+    {file = "opentelemetry_instrumentation_grpc-0.17b0-py3-none-any.whl", hash = "sha256:8abba5ceccd34b4ff3737db60e82d034693f03fbcf707aa6340936c5942e0b52"},
 ]
 opentelemetry-instrumentation-wsgi = [
     {file = "opentelemetry-instrumentation-wsgi-0.17b0.tar.gz", hash = "sha256:d7876ec4f6b9bbe68986c85f258f2f589ffafc8db361860cabf1648f9477dd17"},

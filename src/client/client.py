@@ -21,16 +21,17 @@ import structlog
 from opentelemetry import propagators, trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.grpc import GrpcInstrumentorClient
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
-from opentelemetry.tools.cloud_trace_propagator import \
-    CloudTraceFormatPropagator
+from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
 
 app = flask.Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
+GrpcInstrumentorClient().instrument()
 
 queries = {
     "hello": 349,

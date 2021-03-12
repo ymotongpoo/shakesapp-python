@@ -21,6 +21,7 @@ structlog = "^21.1.0"
 opentelemetry-exporter-google-cloud = "^0.17b0"
 opentelemetry-tools-google-cloud = "^0.17b0"
 opentelemetry-instrumentation-flask = "^0.17b0"
+opentelemetry-instrumentation-grpc = "^0.17b0"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
