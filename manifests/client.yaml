@@ -59,6 +59,8 @@ spec:
         env:
         - name: SERVER_ADDR
           value: "serverservice:5050"
+        - name: OTEL_PYTHON_FLASK_EXCLUDED_URLS
+          value: "_healthz"
         resources:
           requests:
             cpu: 250m

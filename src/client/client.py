@@ -18,11 +18,19 @@ import random
 import flask
 import grpc
 import structlog
+from opentelemetry import propagators, trace
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.tools.cloud_trace_propagator import \
+    CloudTraceFormatPropagator
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
 
 app = flask.Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
 
 queries = {
     "hello": 349,
@@ -72,21 +80,35 @@ if SERVER_ADDR == "":
     raise ClientConfigError("environment variable SERVER_ADDR is not set")
 logger.info(f"server address is {SERVER_ADDR}")
 
+# set up OpenTelemetry exporter for Cloud Trace.
+# NOTE: SimpleExportSpanProcessor is for debugging use in general.
+# we use it here for a demonstration purpose.
+trace.set_tracer_provider(TracerProvider())
+exporter = CloudTraceSpanExporter()
+trace.get_tracer_provider().add_span_processor(SimpleExportSpanProcessor(exporter))
+propagators.set_global_textmap(CloudTraceFormatPropagator())
+
 
 @app.route("/")
 def main_handler():
     q, count = random.choice(list(queries.items()))
 
-    channel = grpc.insecure_channel(SERVER_ADDR)
-    stub = shakesapp_pb2_grpc.ShakespeareServiceStub(channel)
-    logger.info(f"request to server with query: {q}")
-    resp = stub.GetMatchCount(shakesapp_pb2.ShakespeareRequest(query=q))
-    if count != resp.match_count:
-        raise UnexpectedResultError(
-            f"The expected count for '{q}' was {count}, but result was {resp.match_count } obtained"
-        )
-    result = str(resp.match_count)
-    logger.info(f"matched count for '{q}' is {result}")
+    # get Tracer
+    tracer = trace.get_tracer(__name__)
+
+    with tracer.start_as_current_span("client") as cur_span:
+        channel = grpc.insecure_channel(SERVER_ADDR)
+        stub = shakesapp_pb2_grpc.ShakespeareServiceStub(channel)
+        logger.info(f"request to server with query: {q}")
+        cur_span.add_event("server_call_start")
+        resp = stub.GetMatchCount(shakesapp_pb2.ShakespeareRequest(query=q))
+        cur_span.add_event("server_call_end")
+        if count != resp.match_count:
+            raise UnexpectedResultError(
+                f"The expected count for '{q}' was {count}, but result was {resp.match_count } obtained"
+            )
+        result = str(resp.match_count)
+        logger.info(f"matched count for '{q}' is {result}")
     return result
 
 
