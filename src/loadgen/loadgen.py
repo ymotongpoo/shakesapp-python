@@ -17,12 +17,20 @@ import time
 import urllib.parse
 import urllib.request
 
+import opentelemetry.tools.cloud_trace_propagator
 import structlog
 from opentelemetry import propagators, trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+
+# Monkey patching for the trace header name to be lowercase so that gRPC can accept the header.
+# TODO(ymotongpo): Remove this monkey patching when the upstream fixes the header to lowercase.
+# c.f. https://github.com/ymotongpoo/shakesapp-python/issues/2
+opentelemetry.tools.cloud_trace_propagator._TRACE_CONTEXT_HEADER_NAME = (
+    "x-cloud-trace-context"
+)
 
 
 # Structured log configuration

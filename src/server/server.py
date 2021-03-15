@@ -17,6 +17,7 @@ import re
 from concurrent import futures
 
 import grpc
+import opentelemetry.tools.cloud_trace_propagator
 import structlog
 from google.cloud import storage
 from grpc_health.v1 import health_pb2, health_pb2_grpc
@@ -29,6 +30,13 @@ from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagato
 
 import shakesapp_pb2
 import shakesapp_pb2_grpc
+
+# Monkey patching for the trace header name to be lowercase so that gRPC can accept the header.
+# TODO(ymotongpo): Remove this monkey patching when the upstream fixes the header to lowercase.
+# c.f. https://github.com/ymotongpoo/shakesapp-python/issues/2
+opentelemetry.tools.cloud_trace_propagator._TRACE_CONTEXT_HEADER_NAME = (
+    "x-cloud-trace-context"
+)
 
 BUCKET_NAME = "dataflow-samples"
 BUCKET_PREFIX = "shakespeare/"

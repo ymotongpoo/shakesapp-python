@@ -17,6 +17,7 @@ import random
 
 import flask
 import grpc
+import opentelemetry.tools.cloud_trace_propagator
 import structlog
 from opentelemetry import propagators, trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
@@ -29,9 +30,17 @@ from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagato
 import shakesapp_pb2
 import shakesapp_pb2_grpc
 
+# Monkey patching for the trace header name to be lowercase so that gRPC can accept the header.
+# TODO(ymotongpo): Remove this monkey patching when the upstream fixes the header to lowercase.
+# c.f. https://github.com/ymotongpoo/shakesapp-python/issues/2
+opentelemetry.tools.cloud_trace_propagator._TRACE_CONTEXT_HEADER_NAME = (
+    "x-cloud-trace-context"
+)
+
 app = flask.Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
 GrpcInstrumentorClient().instrument()
+
 
 queries = {
     "hello": 349,
