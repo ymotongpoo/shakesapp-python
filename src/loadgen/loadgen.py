@@ -14,13 +14,13 @@
 
 import os
 import time
-import urllib.parse
-import urllib.request
 
 import opentelemetry.tools.cloud_trace_propagator
+import requests
 import structlog
 from opentelemetry import propagators, trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
@@ -31,6 +31,8 @@ from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagato
 opentelemetry.tools.cloud_trace_propagator._TRACE_CONTEXT_HEADER_NAME = (
     "x-cloud-trace-context"
 )
+
+RequestsInstrumentor().instrument()
 
 
 # Structured log configuration
@@ -61,10 +63,9 @@ logger = get_json_logger()
 
 
 def check_client_connection(healthz_url):
-    with urllib.request.urlopen(healthz_url) as resp:
-        ret = resp.read().decode("utf-8")
-        logger.info(f"/_healthz response: {ret}")
-        if str(ret) == "ok":
+    with requests.get(healthz_url) as resp:
+        logger.info(f"/_healthz response: {resp.text}")
+        if resp.text == "ok":
             logger.info("confirmed connection ot clientservice")
             return True
     return False
@@ -73,11 +74,12 @@ def check_client_connection(healthz_url):
 def call_client(url):
     logger.info("call_client start")
     try:
-        with urllib.request.urlopen(url) as resp:
-            ret = resp.read().decode("utf-8")
-            logger.info(f"count: {ret}")
+        with requests.get(url) as resp:
+            logger.info(f"count: {resp.text}")
         logger.info("call_client end")
-    except urllib.error.HTTPError as e:
+    except requests.ConnectionError as e:
+        logger.warn(f"Connection error: {e}")
+    except requests.HTTPError as e:
         logger.warn(f"HTTP request error: {e}")
 
 

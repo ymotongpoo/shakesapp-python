@@ -10,6 +10,8 @@ python = "^3.8"
 structlog = "^21.1.0"
 opentelemetry-exporter-google-cloud = "^0.17b0"
 opentelemetry-tools-google-cloud = "^0.17b0"
+requests = "^2.25.1"
+opentelemetry-instrumentation-requests = "^0.17b0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

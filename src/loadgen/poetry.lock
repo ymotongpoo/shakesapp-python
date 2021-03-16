@@ -62,16 +62,16 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "flake8"
-version = "3.8.4"
+version = "3.9.0"
 description = "the modular source code checker: pep8 pyflakes and co"
 category = "dev"
 optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [package.dependencies]
 mccabe = ">=0.6.0,<0.7.0"
-pycodestyle = ">=2.6.0a1,<2.7.0"
-pyflakes = ">=2.2.0,<2.3.0"
+pycodestyle = ">=2.7.0,<2.8.0"
+pyflakes = ">=2.3.0,<2.4.0"
 
 [[package]]
 name = "google-api-core"
@@ -244,6 +244,34 @@ opentelemetry-api = "0.17b0"
 opentelemetry-sdk = "0.17b0"
 
 [[package]]
+name = "opentelemetry-instrumentation"
+version = "0.17b0"
+description = "Instrumentation Tools & Auto Instrumentation for OpenTelemetry Python"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+opentelemetry-api = "0.17b0"
+wrapt = ">=1.0.0,<2.0.0"
+
+[[package]]
+name = "opentelemetry-instrumentation-requests"
+version = "0.17b0"
+description = "OpenTelemetry requests instrumentation"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+opentelemetry-api = "0.17b0"
+opentelemetry-instrumentation = "0.17b0"
+requests = ">=2.0,<3.0"
+
+[package.extras]
+test = ["opentelemetry-test (==0.17b0)", "httpretty (>=1.0,<2.0)"]
+
+[[package]]
 name = "opentelemetry-sdk"
 version = "0.17b0"
 description = "OpenTelemetry Python SDK"
@@ -319,7 +347,7 @@ pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
 name = "pycodestyle"
-version = "2.6.0"
+version = "2.7.0"
 description = "Python style guide checker"
 category = "dev"
 optional = false
@@ -327,7 +355,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyflakes"
-version = "2.2.0"
+version = "2.3.0"
 description = "passive checker of Python programs"
 category = "dev"
 optional = false
@@ -433,21 +461,29 @@ python-versions = "*"
 
 [[package]]
 name = "urllib3"
-version = "1.26.3"
+version = "1.26.4"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
-brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
+brotli = ["brotlipy (>=0.6.0)"]
+
+[[package]]
+name = "wrapt"
+version = "1.12.1"
+description = "Module for decorators, wrappers and monkey patching."
+category = "main"
+optional = false
+python-versions = "*"
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "669c32e176eae8f30ea4cc196e5f07ea1b2421fa1a334dcd2d9768c169766928"
+content-hash = "5f59ddb42045d7a510234aa5c02d3d42f704dfb9b4a27d2b20ea483659270cc1"
 
 [metadata.files]
 appdirs = [
@@ -474,8 +510,8 @@ click = [
     {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
 ]
 flake8 = [
-    {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
-    {file = "flake8-3.8.4.tar.gz", hash = "sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b"},
+    {file = "flake8-3.9.0-py2.py3-none-any.whl", hash = "sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff"},
+    {file = "flake8-3.9.0.tar.gz", hash = "sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0"},
 ]
 google-api-core = [
     {file = "google-api-core-1.26.1.tar.gz", hash = "sha256:23b0df512c4cc8729793f8992edb350e3211f5fd0ec007afb1599864b421beef"},
@@ -573,6 +609,14 @@ opentelemetry-exporter-google-cloud = [
     {file = "opentelemetry-exporter-google-cloud-0.17b0.tar.gz", hash = "sha256:b5573d858f23d0235dd98e66cfa18021a87462aeee98f3820a79e9200f0bf76b"},
     {file = "opentelemetry_exporter_google_cloud-0.17b0-py3-none-any.whl", hash = "sha256:56b63332feadbb766e08b302daa2885a56fdca1be6b6db49dd87f24f198f6132"},
 ]
+opentelemetry-instrumentation = [
+    {file = "opentelemetry-instrumentation-0.17b0.tar.gz", hash = "sha256:2c9b76b65325129f998e64fc12baa892146c0010d198d86d65ed5bc5f1f82011"},
+    {file = "opentelemetry_instrumentation-0.17b0-py3-none-any.whl", hash = "sha256:865fbfc12e58a94820dd6ae517ee2fd3c85449047e59551e39c118ae32afbfe4"},
+]
+opentelemetry-instrumentation-requests = [
+    {file = "opentelemetry-instrumentation-requests-0.17b0.tar.gz", hash = "sha256:97f95e704929d6d024b4989c1c34d4d0774556dc9ede1619f084af034284266d"},
+    {file = "opentelemetry_instrumentation_requests-0.17b0-py3-none-any.whl", hash = "sha256:7f79170ee504780155152c756c4cd2c544b7ca8688ec1924fb082fa7c4bb8714"},
+]
 opentelemetry-sdk = [
     {file = "opentelemetry-sdk-0.17b0.tar.gz", hash = "sha256:bc56f049cf0b950ee9bf8cd2a8246b8fcf62de18800886850096a9e44311c462"},
     {file = "opentelemetry_sdk-0.17b0-py3-none-any.whl", hash = "sha256:9d9b277049f36ff12605c1c367d0e0ad11fe179a56cc434f831b22933212440e"},
@@ -642,12 +686,12 @@ pyasn1-modules = [
     {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
 ]
 pycodestyle = [
-    {file = "pycodestyle-2.6.0-py2.py3-none-any.whl", hash = "sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367"},
-    {file = "pycodestyle-2.6.0.tar.gz", hash = "sha256:c58a7d2815e0e8d7972bf1803331fb0152f867bd89adf8a01dfd55085434192e"},
+    {file = "pycodestyle-2.7.0-py2.py3-none-any.whl", hash = "sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068"},
+    {file = "pycodestyle-2.7.0.tar.gz", hash = "sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef"},
 ]
 pyflakes = [
-    {file = "pyflakes-2.2.0-py2.py3-none-any.whl", hash = "sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92"},
-    {file = "pyflakes-2.2.0.tar.gz", hash = "sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8"},
+    {file = "pyflakes-2.3.0-py2.py3-none-any.whl", hash = "sha256:910208209dcea632721cb58363d0f72913d9e8cf64dc6f8ae2e02a3609aba40d"},
+    {file = "pyflakes-2.3.0.tar.gz", hash = "sha256:e59fd8e750e588358f1b8885e5a4751203a0516e0ee6d34811089ac294c8806f"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
@@ -758,6 +802,9 @@ typing-extensions = [
     {file = "typing_extensions-3.7.4.3.tar.gz", hash = "sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"},
 ]
 urllib3 = [
-    {file = "urllib3-1.26.3-py2.py3-none-any.whl", hash = "sha256:1b465e494e3e0d8939b50680403e3aedaa2bc434b7d5af64dfd3c958d7f5ae80"},
-    {file = "urllib3-1.26.3.tar.gz", hash = "sha256:de3eedaad74a2683334e282005cd8d7f22f4d55fa690a2a1020a416cb0a47e73"},
+    {file = "urllib3-1.26.4-py2.py3-none-any.whl", hash = "sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df"},
+    {file = "urllib3-1.26.4.tar.gz", hash = "sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937"},
+]
+wrapt = [
+    {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
 ]
